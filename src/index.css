@@ -104,6 +104,14 @@
     --sidebar-border: 220 20% 18%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .mode-madrugada {
+    --background: 225 30% 6%;
+    --card: 225 28% 10%;
+    --muted: 225 25% 14%;
+    --foreground: 210 20% 85%;
+    --info: 220 80% 65%;
+  }
 }
 
 @layer base {
