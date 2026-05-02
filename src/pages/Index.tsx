@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import GuidedSession from "@/components/GuidedSession";
 import StudyModes from "@/components/StudyModes";
 import SpecialModes from "@/components/SpecialModes";
-import Flashcards from "@/components/Flashcards";
 import ProgressDashboard from "@/components/ProgressDashboard";
 import AnxietyMode from "@/components/AnxietyMode";
 import Pricing from "@/components/Pricing";
@@ -13,18 +12,18 @@ import ModoMadrugada from "@/components/ModoMadrugada";
 import ModoVestibular from "@/components/ModoVestibular";
 import ModoRecuperacao from "@/components/ModoRecuperacao";
 import StudyPlanner from "@/components/StudyPlanner";
+import AppNav from "@/components/AppNav";
 import { useStudyMode } from "@/contexts/StudyModeContext";
+import { useNavigate } from "react-router-dom";
 
-type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner" | "flashcards";
+type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner";
 
 const Index = () => {
   const [view, setView] = useState<ActiveView>("home");
   const { setMode } = useStudyMode();
+  const navigate = useNavigate();
 
-  const goHome = () => {
-    setView("home");
-    setMode("normal");
-  };
+  const goHome = () => { setView("home"); setMode("normal"); };
 
   const activateMode = (v: ActiveView) => {
     setView(v);
@@ -36,46 +35,44 @@ const Index = () => {
 
   if (view === "guided") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
+      <AppNav />
       <GuidedSession onBack={goHome} />
       <AntiProcrastination />
     </div>
   );
-
   if (view === "madrugada") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <ModoMadrugada onBack={goHome} />
       <AntiProcrastination />
     </div>
   );
-
   if (view === "vestibular") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <ModoVestibular onBack={goHome} />
       <AntiProcrastination />
     </div>
   );
-
   if (view === "recuperacao") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <ModoRecuperacao onBack={goHome} />
     </div>
   );
-
   if (view === "planner") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
+      <AppNav />
       <StudyPlanner onBack={goHome} />
     </div>
   );
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500">
+      <AppNav />
       <HeroSection onStart={() => activateMode("guided")} />
       <StudyModes
         onModeSelect={(mode) => {
-          if (mode === "pomodoro" || mode === "revisao" || mode === "sprint") activateMode("guided");
-          else if (mode === "flashcard") setView("flashcards");
+          if (mode === "pomodoro" || mode === "revisao" || mode === "sprint" || mode === "revisao7") activateMode("guided");
+          else if (mode === "flashcard") navigate("/flashcards");
           else if (mode === "recuperacao") activateMode("recuperacao");
-          else if (mode === "revisao7") activateMode("guided");
         }}
       />
       <SpecialModes
@@ -86,7 +83,6 @@ const Index = () => {
         }}
         onPlannerOpen={() => setView("planner")}
       />
-      <Flashcards />
       <ProgressDashboard />
       <AnxietyMode />
       <Pricing />
