@@ -14,7 +14,238 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cronograma: {
+        Row: {
+          conteudo: string | null
+          cor: string | null
+          created_at: string | null
+          dia_semana: number
+          duracao: number | null
+          horario: string
+          id: string
+          materia: string
+          tipo_estudo: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conteudo?: string | null
+          cor?: string | null
+          created_at?: string | null
+          dia_semana: number
+          duracao?: number | null
+          horario: string
+          id?: string
+          materia: string
+          tipo_estudo?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conteudo?: string | null
+          cor?: string | null
+          created_at?: string | null
+          dia_semana?: number
+          duracao?: number | null
+          horario?: string
+          id?: string
+          materia?: string
+          tipo_estudo?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_decks: {
+        Row: {
+          created_at: string | null
+          id: string
+          materia: string | null
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          materia?: string | null
+          nome: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          materia?: string | null
+          nome?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          created_at: string | null
+          deck_id: string
+          facilidade: number | null
+          frente: string
+          id: string
+          intervalo: number | null
+          proxima_revisao: string | null
+          repeticoes: number | null
+          tags: string[] | null
+          user_id: string
+          verso: string
+        }
+        Insert: {
+          created_at?: string | null
+          deck_id: string
+          facilidade?: number | null
+          frente: string
+          id?: string
+          intervalo?: number | null
+          proxima_revisao?: string | null
+          repeticoes?: number | null
+          tags?: string[] | null
+          user_id: string
+          verso: string
+        }
+        Update: {
+          created_at?: string | null
+          deck_id?: string
+          facilidade?: number | null
+          frente?: string
+          id?: string
+          intervalo?: number | null
+          proxima_revisao?: string | null
+          repeticoes?: number | null
+          tags?: string[] | null
+          user_id?: string
+          verso?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome: string | null
+          streak_dias: number | null
+          ultimo_estudo: string | null
+          xp_total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          nome?: string | null
+          streak_dias?: number | null
+          ultimo_estudo?: string | null
+          xp_total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome?: string | null
+          streak_dias?: number | null
+          ultimo_estudo?: string | null
+          xp_total?: number | null
+        }
+        Relationships: []
+      }
+      repertorio_enem: {
+        Row: {
+          autor: string | null
+          created_at: string | null
+          id: string
+          materia: string
+          tema: string
+          texto: string
+        }
+        Insert: {
+          autor?: string | null
+          created_at?: string | null
+          id?: string
+          materia: string
+          tema: string
+          texto: string
+        }
+        Update: {
+          autor?: string | null
+          created_at?: string | null
+          id?: string
+          materia?: string
+          tema?: string
+          texto?: string
+        }
+        Relationships: []
+      }
+      repertorio_favoritos: {
+        Row: {
+          created_at: string | null
+          id: string
+          repertorio_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          repertorio_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          repertorio_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repertorio_favoritos_repertorio_id_fkey"
+            columns: ["repertorio_id"]
+            isOneToOne: false
+            referencedRelation: "repertorio_enem"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_sessions: {
+        Row: {
+          area: string
+          created_at: string | null
+          data: string | null
+          duracao_min: number
+          id: string
+          materia: string
+          modo: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string | null
+          data?: string | null
+          duracao_min: number
+          id?: string
+          materia: string
+          modo: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          created_at?: string | null
+          data?: string | null
+          duracao_min?: number
+          id?: string
+          materia?: string
+          modo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
