@@ -8,6 +8,7 @@ import AnxietyMode from "@/components/AnxietyMode";
 import Pricing from "@/components/Pricing";
 import Footer from "@/components/Footer";
 import AntiProcrastination from "@/components/AntiProcrastination";
+import AntiProcrastinationButton from "@/components/AntiProcrastinationButton";
 import ModoMadrugada from "@/components/ModoMadrugada";
 import ModoVestibular from "@/components/ModoVestibular";
 import ModoRecuperacao from "@/components/ModoRecuperacao";
