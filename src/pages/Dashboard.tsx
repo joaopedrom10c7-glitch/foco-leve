@@ -8,7 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from "recharts";
-import { Flame, Zap, Trophy, Star, Target, TrendingUp, BookOpen } from "lucide-react";
+import { Flame, Zap, Trophy, Star, Target, TrendingUp, BookOpen, Brain } from "lucide-react";
 
 const AREAS = ["Linguagens", "Matemática", "Ciências Humanas", "Ciências da Natureza", "Redação"];
 
