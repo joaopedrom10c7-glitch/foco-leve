@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Download, X } from "lucide-react";
+import { Plus, Trash2, Download, X, AlertTriangle, GripVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import * as XLSX from "xlsx";
 import AppNav from "@/components/AppNav";
 
@@ -37,6 +38,9 @@ export default function CronogramaPage() {
   const [grid, setGrid] = useState<Record<string, CellData>>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ materia: "", conteudo: "", tipo_estudo: "leitura", duracao: 60 });
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [failedCount, setFailedCount] = useState(0);
+  const [dragSource, setDragSource] = useState<string | null>(null);
 
   const cellKey = (dia: number, hora: string) => `${dia}-${hora}`;
 
@@ -55,7 +59,23 @@ export default function CronogramaPage() {
     }
   }, [user]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  // Check for failed sessions to trigger adaptive recovery
+  const checkAdaptiveRecovery = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("focus_sessions")
+      .select("completado")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(3);
+    if (data) {
+      const recentFails = data.filter(s => !s.completado).length;
+      setFailedCount(recentFails);
+      if (recentFails >= 3) setShowRecovery(true);
+    }
+  }, [user]);
+
+  useEffect(() => { loadData(); checkAdaptiveRecovery(); }, [loadData, checkAdaptiveRecovery]);
 
   const saveCell = async (dia: number, hora: string) => {
     if (!user || !form.materia.trim()) return;
@@ -77,6 +97,7 @@ export default function CronogramaPage() {
     }
     setEditing(null);
     loadData();
+    toast({ title: "Salvo ✓" });
   };
 
   const deleteCell = async (key: string) => {
@@ -85,6 +106,54 @@ export default function CronogramaPage() {
       await supabase.from("cronograma").delete().eq("id", cell.id);
       loadData();
     }
+  };
+
+  // Drag and drop
+  const handleDragStart = (key: string) => setDragSource(key);
+  const handleDrop = async (targetKey: string) => {
+    if (!dragSource || dragSource === targetKey || !user) return;
+    const sourceCell = grid[dragSource];
+    if (!sourceCell) return;
+
+    const [targetDia, targetHora] = targetKey.split("-");
+    const dia = parseInt(targetDia);
+
+    // Delete source
+    if (sourceCell.id) {
+      await supabase.from("cronograma").delete().eq("id", sourceCell.id);
+    }
+
+    // Delete target if exists
+    const targetCell = grid[targetKey];
+    if (targetCell?.id) {
+      await supabase.from("cronograma").delete().eq("id", targetCell.id);
+    }
+
+    // Insert at new position
+    await supabase.from("cronograma").insert({
+      user_id: user.id, dia_semana: dia, horario: targetHora,
+      materia: sourceCell.materia, conteudo: sourceCell.conteudo,
+      tipo_estudo: sourceCell.tipo_estudo, duracao: sourceCell.duracao, cor: sourceCell.cor,
+    });
+
+    setDragSource(null);
+    loadData();
+    toast({ title: "Movido ✓" });
+  };
+
+  const applyRecoveryMode = async () => {
+    if (!user) return;
+    // Log analytics event
+    await supabase.from("analytics_events").insert({
+      user_id: user.id,
+      evento: "recovery_mode_activated",
+      metadata: { failed_sessions: failedCount },
+    });
+    setShowRecovery(false);
+    toast({
+      title: "Modo Recuperação ativado 💆",
+      description: "Suas sessões foram reduzidas. Foque no essencial.",
+    });
   };
 
   const exportXLSX = () => {
@@ -104,6 +173,10 @@ export default function CronogramaPage() {
     toast({ title: "Exportado!", description: "Cronograma salvo como .xlsx" });
   };
 
+  // Stats
+  const totalSlots = Object.keys(grid).length;
+  const totalHours = Object.values(grid).reduce((a, c) => a + c.duracao, 0) / 60;
+
   if (!user) {
     return (
       <>
@@ -120,13 +193,44 @@ export default function CronogramaPage() {
       <AppNav />
       <div className="min-h-screen bg-background pb-20">
         <div className="container py-6">
-          <div className="flex items-center justify-between mb-6">
+          {/* Recovery alert */}
+          <AnimatePresence>
+            {showRecovery && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3"
+              >
+                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-display font-bold text-sm">Detectamos dificuldade recente</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Você não completou {failedCount} sessões seguidas. Quer ativar o modo recuperação?
+                    Vamos reduzir a carga e focar no essencial.
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" className="rounded-full text-xs" onClick={applyRecoveryMode}>
+                      Ativar Recuperação 💆
+                    </Button>
+                    <Button size="sm" variant="ghost" className="rounded-full text-xs" onClick={() => setShowRecovery(false)}>
+                      Não precisa
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="font-display font-bold text-2xl">Cronograma Semanal</h1>
-              <p className="text-sm text-muted-foreground">Organize seus estudos como uma planilha</p>
+              <p className="text-sm text-muted-foreground">
+                {totalSlots} blocos · {totalHours.toFixed(1)}h planejadas · Arraste para mover
+              </p>
             </div>
             <Button onClick={exportXLSX} variant="outline" className="gap-2 rounded-full">
-              <Download className="h-4 w-4" /> Exportar .xlsx
+              <Download className="h-4 w-4" /> .xlsx
             </Button>
           </div>
 
@@ -145,7 +249,7 @@ export default function CronogramaPage() {
             <table className="w-full text-xs">
               <thead>
                 <tr className="bg-muted/50">
-                  <th className="p-2 text-left font-semibold min-w-[60px] sticky left-0 bg-muted/50">Hora</th>
+                  <th className="p-2 text-left font-semibold min-w-[60px] sticky left-0 bg-muted/50 z-10">Hora</th>
                   {DIAS.map(d => (
                     <th key={d} className="p-2 text-center font-semibold min-w-[120px]">{d}</th>
                   ))}
@@ -154,15 +258,20 @@ export default function CronogramaPage() {
               <tbody>
                 {HORARIOS.map(hora => (
                   <tr key={hora} className="border-t border-border/50">
-                    <td className="p-2 font-mono text-muted-foreground sticky left-0 bg-background">{hora}</td>
+                    <td className="p-2 font-mono text-muted-foreground sticky left-0 bg-background z-10">{hora}</td>
                     {DIAS.map((_, dia) => {
                       const key = cellKey(dia, hora);
                       const cell = grid[key];
                       const isEditing = editing === key;
                       return (
-                        <td key={key} className="p-1 border-l border-border/30 relative group">
+                        <td
+                          key={key}
+                          className="p-1 border-l border-border/30 relative group"
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={() => handleDrop(key)}
+                        >
                           {isEditing ? (
-                            <div className="bg-card p-2 rounded-lg shadow-elevated space-y-1.5 min-w-[160px] absolute z-10 left-0 top-0">
+                            <div className="bg-card p-2 rounded-lg shadow-elevated space-y-1.5 min-w-[160px] absolute z-20 left-0 top-0">
                               <select
                                 className="w-full text-xs p-1.5 rounded border bg-background"
                                 value={form.materia}
@@ -193,14 +302,19 @@ export default function CronogramaPage() {
                             </div>
                           ) : cell ? (
                             <div
-                              className="rounded-lg p-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                              draggable
+                              onDragStart={() => handleDragStart(key)}
+                              className="rounded-lg p-1.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity"
                               style={{ background: cell.cor + "22", borderLeft: `3px solid ${cell.cor}` }}
                               onClick={() => {
                                 setForm({ materia: cell.materia, conteudo: cell.conteudo, tipo_estudo: cell.tipo_estudo, duracao: cell.duracao });
                                 setEditing(key);
                               }}
                             >
-                              <p className="font-semibold truncate" style={{ color: cell.cor }}>{cell.materia}</p>
+                              <div className="flex items-center gap-1">
+                                <GripVertical className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 shrink-0" />
+                                <p className="font-semibold truncate text-[11px]" style={{ color: cell.cor }}>{cell.materia}</p>
+                              </div>
                               <p className="text-muted-foreground truncate">{cell.conteudo}</p>
                               <button
                                 className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
