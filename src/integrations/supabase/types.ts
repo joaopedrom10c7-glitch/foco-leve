@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          evento: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          evento: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          evento?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cronograma: {
         Row: {
           conteudo: string | null
@@ -130,28 +154,70 @@ export type Database = {
           },
         ]
       }
+      focus_sessions: {
+        Row: {
+          completado: boolean | null
+          created_at: string | null
+          duracao: number
+          id: string
+          materia: string
+          procrastinacao_trigger: string | null
+          user_id: string
+        }
+        Insert: {
+          completado?: boolean | null
+          created_at?: string | null
+          duracao?: number
+          id?: string
+          materia: string
+          procrastinacao_trigger?: string | null
+          user_id: string
+        }
+        Update: {
+          completado?: boolean | null
+          created_at?: string | null
+          duracao?: number
+          id?: string
+          materia?: string
+          procrastinacao_trigger?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          cognitive_profile: string | null
           created_at: string | null
+          email: string | null
           id: string
+          level: number | null
           nome: string | null
           streak_dias: number | null
+          study_preference: Json | null
           ultimo_estudo: string | null
           xp_total: number | null
         }
         Insert: {
+          cognitive_profile?: string | null
           created_at?: string | null
+          email?: string | null
           id: string
+          level?: number | null
           nome?: string | null
           streak_dias?: number | null
+          study_preference?: Json | null
           ultimo_estudo?: string | null
           xp_total?: number | null
         }
         Update: {
+          cognitive_profile?: string | null
           created_at?: string | null
+          email?: string | null
           id?: string
+          level?: number | null
           nome?: string | null
           streak_dias?: number | null
+          study_preference?: Json | null
           ultimo_estudo?: string | null
           xp_total?: number | null
         }
@@ -213,6 +279,39 @@ export type Database = {
           },
         ]
       }
+      study_plans: {
+        Row: {
+          adaptativo_score: number | null
+          created_at: string | null
+          dificuldade_media: number | null
+          id: string
+          materias: Json
+          semana: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          adaptativo_score?: number | null
+          created_at?: string | null
+          dificuldade_media?: number | null
+          id?: string
+          materias?: Json
+          semana?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          adaptativo_score?: number | null
+          created_at?: string | null
+          dificuldade_media?: number | null
+          id?: string
+          materias?: Json
+          semana?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           area: string
@@ -242,6 +341,60 @@ export type Database = {
           id?: string
           materia?: string
           modo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_answers: {
+        Row: {
+          assunto: string
+          correto: boolean | null
+          created_at: string | null
+          id: string
+          materia: string
+          tempo_resposta: number | null
+          user_id: string
+        }
+        Insert: {
+          assunto?: string
+          correto?: boolean | null
+          created_at?: string | null
+          id?: string
+          materia: string
+          tempo_resposta?: number | null
+          user_id: string
+        }
+        Update: {
+          assunto?: string
+          correto?: boolean | null
+          created_at?: string | null
+          id?: string
+          materia?: string
+          tempo_resposta?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_reports: {
+        Row: {
+          created_at: string | null
+          enviado_email: boolean | null
+          id: string
+          pdf_url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enviado_email?: boolean | null
+          id?: string
+          pdf_url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enviado_email?: boolean | null
+          id?: string
+          pdf_url?: string | null
           user_id?: string
         }
         Relationships: []
