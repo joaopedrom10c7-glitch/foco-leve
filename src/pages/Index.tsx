@@ -89,6 +89,7 @@ const Index = () => {
       <Pricing />
       <Footer />
       <AntiProcrastination />
+      <AntiProcrastinationButton onStartFocus={() => activateMode("guided")} />
     </div>
   );
 };
