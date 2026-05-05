@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { StudyModeProvider } from "@/contexts/StudyModeContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { SubscriptionProvider } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import CronogramaPage from "./pages/Cronograma";
@@ -13,6 +14,7 @@ import DashboardPage from "./pages/Dashboard";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import RepertorioPage from "./pages/Repertorio";
 import NotFound from "./pages/NotFound";
+import PlanosPage from "./pages/Planos";
 import Onboarding from "./components/Onboarding";
 
 const queryClient = new QueryClient();
@@ -61,6 +63,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/flashcards" element={<FlashcardsPage />} />
       <Route path="/repertorio" element={<RepertorioPage />} />
+      <Route path="/planos" element={<PlanosPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -70,6 +73,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <SubscriptionProvider>
         <StudyModeProvider>
           <Toaster />
           <Sonner />
@@ -77,6 +81,7 @@ const App = () => (
             <AppRoutes />
           </BrowserRouter>
         </StudyModeProvider>
+        </SubscriptionProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
