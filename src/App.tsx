@@ -15,6 +15,7 @@ import FlashcardsPage from "./pages/FlashcardsPage";
 import RepertorioPage from "./pages/Repertorio";
 import NotFound from "./pages/NotFound";
 import PlanosPage from "./pages/Planos";
+import SimuladoPage from "./pages/Simulado";
 import Onboarding from "./components/Onboarding";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/flashcards" element={<FlashcardsPage />} />
       <Route path="/repertorio" element={<RepertorioPage />} />
+      <Route path="/simulado" element={<SimuladoPage />} />
       <Route path="/planos" element={<PlanosPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

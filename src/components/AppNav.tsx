@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Calendar, BarChart3, Layers, BookText, User, LogOut, Crown } from "lucide-react";
+import { BookOpen, Calendar, BarChart3, Layers, BookText, User, LogOut, Crown, Brain } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
@@ -9,8 +9,8 @@ const links = [
   { to: "/", label: "Início", icon: BookOpen },
   { to: "/cronograma", label: "Cronograma", icon: Calendar },
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { to: "/simulado", label: "Simulado", icon: Brain },
   { to: "/flashcards", label: "Flashcards", icon: Layers },
-  { to: "/repertorio", label: "Repertório", icon: BookText },
   { to: "/planos", label: "Planos", icon: Crown },
 ];
 
