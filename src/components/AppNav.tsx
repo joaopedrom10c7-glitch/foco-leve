@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Calendar, BarChart3, Layers, BookText, User, LogOut, Crown, Brain } from "lucide-react";
+import { BookOpen, Calendar, BarChart3, Layers, BookText, User, LogOut, Crown, Brain, TrendingUp } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
@@ -11,7 +11,8 @@ const links = [
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/simulado", label: "Simulado", icon: Brain },
   { to: "/flashcards", label: "Flashcards", icon: Layers },
-  { to: "/planos", label: "Planos", icon: Crown },
+  { to: "/analytics", label: "Análise", icon: TrendingUp },
+  { to: "/perfil", label: "Perfil", icon: User },
 ];
 
 export default function AppNav() {
