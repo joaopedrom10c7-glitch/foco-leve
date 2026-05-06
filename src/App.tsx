@@ -61,23 +61,19 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/cronograma" element={<CronogramaPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/flashcards" element={<FlashcardsPage />} />
-      <Route path="/repertorio" element={<RepertorioPage />} />
-      <Route path="/simulado" element={<SimuladoPage />} />
-      <Route path="/analytics" element={<AnalyticsPage />} />
-      <Route path="/perfil" element={<ProfilePage />} />
-      <Route path="/planos" element={<PlanosPage />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-
-  return (
     <>
-      {routes}
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/cronograma" element={<CronogramaPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/flashcards" element={<FlashcardsPage />} />
+        <Route path="/repertorio" element={<RepertorioPage />} />
+        <Route path="/simulado" element={<SimuladoPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/planos" element={<PlanosPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       <AICoach />
     </>
   );
