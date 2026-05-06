@@ -16,7 +16,10 @@ import RepertorioPage from "./pages/Repertorio";
 import NotFound from "./pages/NotFound";
 import PlanosPage from "./pages/Planos";
 import SimuladoPage from "./pages/Simulado";
+import AnalyticsPage from "./pages/Analytics";
+import ProfilePage from "./pages/Profile";
 import Onboarding from "./components/Onboarding";
+import AICoach from "./components/AICoach";
 
 const queryClient = new QueryClient();
 
