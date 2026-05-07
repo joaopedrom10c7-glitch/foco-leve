@@ -18,6 +18,9 @@ import PlanosPage from "./pages/Planos";
 import SimuladoPage from "./pages/Simulado";
 import AnalyticsPage from "./pages/Analytics";
 import ProfilePage from "./pages/Profile";
+import ConquistasPage from "./pages/Conquistas";
+import RedacaoPage from "./pages/Redacao";
+import ConfiguracoesPage from "./pages/Configuracoes";
 import Onboarding from "./components/Onboarding";
 import AICoach from "./components/AICoach";
 
@@ -71,6 +74,9 @@ function AppRoutes() {
         <Route path="/simulado" element={<SimuladoPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/conquistas" element={<ConquistasPage />} />
+        <Route path="/redacao" element={<RedacaoPage />} />
+        <Route path="/configuracoes" element={<ConfiguracoesPage />} />
         <Route path="/planos" element={<PlanosPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
