@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Calendar, BarChart3, Layers, BookText, User, LogOut, Crown, Brain, TrendingUp } from "lucide-react";
+import { BookOpen, Calendar, BarChart3, Layers, User, LogOut, Brain, TrendingUp, Trophy, PenTool, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
@@ -11,7 +11,17 @@ const links = [
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/simulado", label: "Simulado", icon: Brain },
   { to: "/flashcards", label: "Flashcards", icon: Layers },
+  { to: "/redacao", label: "Redação", icon: PenTool },
+  { to: "/conquistas", label: "Conquistas", icon: Trophy },
   { to: "/analytics", label: "Análise", icon: TrendingUp },
+  { to: "/perfil", label: "Perfil", icon: User },
+];
+
+const mobileLinks = [
+  { to: "/", label: "Início", icon: BookOpen },
+  { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { to: "/simulado", label: "Simulado", icon: Brain },
+  { to: "/redacao", label: "Redação", icon: PenTool },
   { to: "/perfil", label: "Perfil", icon: User },
 ];
 
@@ -56,7 +66,7 @@ export default function AppNav() {
       {/* Bottom mobile nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-lg border-t border-border">
         <div className="flex justify-around py-2">
-          {links.map(l => {
+          {mobileLinks.map(l => {
             const Icon = l.icon;
             const active = pathname === l.to;
             return (
