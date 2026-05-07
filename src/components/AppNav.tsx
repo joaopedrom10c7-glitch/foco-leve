@@ -66,7 +66,7 @@ export default function AppNav() {
       {/* Bottom mobile nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-lg border-t border-border">
         <div className="flex justify-around py-2">
-          {links.map(l => {
+          {mobileLinks.map(l => {
             const Icon = l.icon;
             const active = pathname === l.to;
             return (
