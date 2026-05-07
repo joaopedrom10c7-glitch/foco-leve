@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          created_at: string | null
+          descricao: string
+          icone: string
+          id: string
+          meta: number
+          nome: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string
+          icone?: string
+          id?: string
+          meta?: number
+          nome: string
+          tipo?: string
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string
+          icone?: string
+          id?: string
+          meta?: number
+          nome?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string | null
@@ -223,6 +253,36 @@ export type Database = {
         }
         Relationships: []
       }
+      redacao_submissions: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          nota: number | null
+          tema: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          nota?: number | null
+          tema: string
+          texto?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          nota?: number | null
+          tema?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       repertorio_enem: {
         Row: {
           autor: string | null
@@ -345,6 +405,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_answers: {
         Row: {
           assunto: string
@@ -371,6 +460,39 @@ export type Database = {
           id?: string
           materia?: string
           tempo_resposta?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          meta_diaria_min: number
+          notificacoes: boolean
+          som: boolean
+          tema: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          meta_diaria_min?: number
+          notificacoes?: boolean
+          som?: boolean
+          tema?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          meta_diaria_min?: number
+          notificacoes?: boolean
+          som?: boolean
+          tema?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
