@@ -24,10 +24,13 @@ import ConfiguracoesPage from "./pages/Configuracoes";
 import RankingPage from "./pages/Ranking";
 import Onboarding from "./components/Onboarding";
 import AICoach from "./components/AICoach";
+import InstallPrompt from "./components/InstallPrompt";
+import { usePWA } from "./hooks/usePWA";
 
 const queryClient = new QueryClient();
 
 function AppRoutes() {
+  usePWA();
   const { user, loading } = useAuth();
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
@@ -83,6 +86,7 @@ function AppRoutes() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <AICoach />
+      <InstallPrompt />
     </>
   );
 }
