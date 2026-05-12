@@ -216,36 +216,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          apelido: string | null
           cognitive_profile: string | null
           created_at: string | null
           email: string | null
           id: string
           level: number | null
           nome: string | null
+          publico: boolean
           streak_dias: number | null
           study_preference: Json | null
           ultimo_estudo: string | null
           xp_total: number | null
         }
         Insert: {
+          apelido?: string | null
           cognitive_profile?: string | null
           created_at?: string | null
           email?: string | null
           id: string
           level?: number | null
           nome?: string | null
+          publico?: boolean
           streak_dias?: number | null
           study_preference?: Json | null
           ultimo_estudo?: string | null
           xp_total?: number | null
         }
         Update: {
+          apelido?: string | null
           cognitive_profile?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
           level?: number | null
           nome?: string | null
+          publico?: boolean
           streak_dias?: number | null
           study_preference?: Json | null
           ultimo_estudo?: string | null
