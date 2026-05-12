@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Calendar, BarChart3, Layers, User, LogOut, Brain, TrendingUp, Trophy, PenTool, Settings } from "lucide-react";
+import { BookOpen, Calendar, BarChart3, Layers, User, LogOut, Brain, TrendingUp, Trophy, PenTool, Settings, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
@@ -13,6 +13,7 @@ const links = [
   { to: "/flashcards", label: "Flashcards", icon: Layers },
   { to: "/redacao", label: "Redação", icon: PenTool },
   { to: "/conquistas", label: "Conquistas", icon: Trophy },
+  { to: "/ranking", label: "Ranking", icon: Crown },
   { to: "/analytics", label: "Análise", icon: TrendingUp },
   { to: "/perfil", label: "Perfil", icon: User },
 ];

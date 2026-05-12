@@ -21,6 +21,7 @@ import ProfilePage from "./pages/Profile";
 import ConquistasPage from "./pages/Conquistas";
 import RedacaoPage from "./pages/Redacao";
 import ConfiguracoesPage from "./pages/Configuracoes";
+import RankingPage from "./pages/Ranking";
 import Onboarding from "./components/Onboarding";
 import AICoach from "./components/AICoach";
 
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path="/conquistas" element={<ConquistasPage />} />
         <Route path="/redacao" element={<RedacaoPage />} />
         <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+        <Route path="/ranking" element={<RankingPage />} />
         <Route path="/planos" element={<PlanosPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
