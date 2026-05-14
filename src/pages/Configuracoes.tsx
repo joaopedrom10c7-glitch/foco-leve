@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { Settings, Bell, Volume2, Target, Moon, Sun, Save } from "lucide-react";
+import { Settings, Volume2, Target, Moon, Sun, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UserSettings {
@@ -127,15 +127,8 @@ export default function ConfiguracoesPage() {
             </div>
           </motion.div>
 
-          {/* Notifications */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-2xl p-4 shadow-card space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-primary" />
-                <span className="font-display font-bold text-sm">Notificações</span>
-              </div>
-              <Switch checked={settings.notificacoes} onCheckedChange={v => setSettings({ ...settings, notificacoes: v })} />
-            </div>
+          {/* Sounds only */}
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-2xl p-4 shadow-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Volume2 className="h-4 w-4 text-primary" />

@@ -13,11 +13,12 @@ import ModoMadrugada from "@/components/ModoMadrugada";
 import ModoVestibular from "@/components/ModoVestibular";
 import ModoRecuperacao from "@/components/ModoRecuperacao";
 import StudyPlanner from "@/components/StudyPlanner";
+import StudyModeSession from "@/components/StudyModeSession";
 import AppNav from "@/components/AppNav";
 import { useStudyMode } from "@/contexts/StudyModeContext";
 import { useNavigate } from "react-router-dom";
 
-type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner";
+type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner" | "pomodoro" | "revisao" | "sprint";
 
 const Index = () => {
   const [view, setView] = useState<ActiveView>("home");
@@ -64,6 +65,12 @@ const Index = () => {
       <StudyPlanner onBack={goHome} />
     </div>
   );
+  if (view === "pomodoro" || view === "revisao" || view === "sprint") return (
+    <div className="min-h-screen bg-background transition-colors duration-500">
+      <AppNav />
+      <StudyModeSession mode={view} onBack={goHome} />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500">
@@ -71,7 +78,10 @@ const Index = () => {
       <HeroSection onStart={() => activateMode("guided")} />
       <StudyModes
         onModeSelect={(mode) => {
-          if (mode === "pomodoro" || mode === "revisao" || mode === "sprint" || mode === "revisao7") activateMode("guided");
+          if (mode === "pomodoro") setView("pomodoro");
+          else if (mode === "revisao") setView("revisao");
+          else if (mode === "sprint") setView("sprint");
+          else if (mode === "revisao7") activateMode("guided");
           else if (mode === "flashcard") navigate("/flashcards");
           else if (mode === "recuperacao") activateMode("recuperacao");
         }}
