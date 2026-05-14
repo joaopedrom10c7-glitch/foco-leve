@@ -386,8 +386,12 @@ export default function StudyPlanner({ onBack }: { onBack: () => void }) {
               "Constância supera intensidade. Vai com calma, mas vai." 💪
             </p>
             <div className="flex flex-col gap-3">
-              <Button variant="hero" size="lg" onClick={downloadPDF} className="rounded-full gap-2">
-                <Download className="h-5 w-5" /> Baixar cronograma
+              <Button variant="hero" size="lg" onClick={saveToWeekly} disabled={savingPlan} className="rounded-full gap-2">
+                {savingPlan ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                {savingPlan ? "Salvando..." : "Salvar na planilha semanal"}
+              </Button>
+              <Button variant="calm" size="lg" onClick={downloadPDF} className="rounded-full gap-2">
+                <Download className="h-5 w-5" /> Baixar como texto
               </Button>
               <Button variant="ghost" onClick={onBack}>Voltar ao início</Button>
             </div>
