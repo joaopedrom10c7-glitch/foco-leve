@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, ChevronRight, Calendar, Download, BookOpen } from "lucide-react";
+import { ArrowLeft, ChevronRight, Calendar, Download, BookOpen, Save, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const AREAS = [
   { key: "linguagens", label: "Linguagens", emoji: "📝" },
@@ -42,11 +46,14 @@ interface ScheduleEntry {
 type Step = "name" | "objective" | "days" | "time" | "schedule" | "level" | "areas" | "contents" | "result";
 
 export default function StudyPlanner({ onBack }: { onBack: () => void }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>("name");
   const [data, setData] = useState<DiagnosticData>({ name: "", objective: "", daysPerWeek: 3, sessionTime: "40min", schedule: "Tarde", level: "Médio" });
   const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set());
   const [selectedContents, setSelectedContents] = useState<Record<string, Set<string>>>({});
   const [generatedSchedule, setGeneratedSchedule] = useState<ScheduleEntry[]>([]);
+  const [savingPlan, setSavingPlan] = useState(false);
 
   const toggleArea = (key: string) => {
     const s = new Set(selectedAreas);
