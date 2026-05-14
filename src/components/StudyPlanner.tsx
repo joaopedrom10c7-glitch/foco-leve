@@ -127,6 +127,63 @@ export default function StudyPlanner({ onBack }: { onBack: () => void }) {
     URL.revokeObjectURL(url);
   };
 
+  // Map day label -> dia_semana (0=Dom..6=Sáb)
+  const dayToNum: Record<string, number> = {
+    "Domingo": 0, "Segunda": 1, "Terça": 2, "Quarta": 3, "Quinta": 4, "Sexta": 5, "Sábado": 6,
+  };
+  const scheduleToHora: Record<string, string> = {
+    "Manhã": "08:00", "Tarde": "14:00", "Noite": "19:00", "Madrugada": "23:00",
+  };
+  const sessionToMin: Record<string, number> = { "20min": 20, "40min": 40, "1h": 60, "2h+": 120 };
+  const CORES_AREA: Record<string, string> = {
+    "Linguagens": "hsl(210 80% 55%)",
+    "Matemática": "hsl(15 85% 60%)",
+    "Ciências Humanas": "hsl(40 90% 55%)",
+    "Ciências da Natureza": "hsl(145 60% 45%)",
+    "Redação": "hsl(280 60% 55%)",
+    "Revisão": "hsl(165 55% 42%)",
+  };
+
+  const saveToWeekly = async () => {
+    if (!user) {
+      toast({ title: "Faça login para salvar no cronograma", variant: "destructive" });
+      return;
+    }
+    setSavingPlan(true);
+    const baseHora = scheduleToHora[data.schedule] || "14:00";
+    const baseHourNum = parseInt(baseHora.split(":")[0]);
+    const dur = sessionToMin[data.sessionTime] || 60;
+
+    // Clear existing rows for these slots before inserting new
+    const inserts = generatedSchedule.map((e, idx) => {
+      const dia = dayToNum[e.day] ?? 1;
+      // stagger if same day has multiple entries
+      const sameDayBefore = generatedSchedule.slice(0, idx).filter(p => p.day === e.day).length;
+      const hour = (baseHourNum + sameDayBefore) % 24;
+      const horario = `${hour.toString().padStart(2, "0")}:00`;
+      const cor = CORES_AREA[e.subject] || "hsl(165 55% 42%)";
+      return {
+        user_id: user.id,
+        dia_semana: dia,
+        horario,
+        materia: e.subject,
+        conteudo: e.content,
+        tipo_estudo: e.type.toLowerCase().includes("revis") ? "revisao" : e.type.toLowerCase().includes("quest") ? "exercicios" : "leitura",
+        duracao: dur,
+        cor,
+      };
+    });
+
+    const { error } = await supabase.from("cronograma").insert(inserts);
+    setSavingPlan(false);
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Cronograma salvo! ✓", description: "Veja na planilha semanal." });
+      setTimeout(() => navigate("/cronograma"), 800);
+    }
+  };
+
   const renderStep = () => {
     switch (step) {
       case "name":
