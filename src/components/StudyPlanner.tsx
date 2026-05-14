@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, ChevronRight, Calendar, Download, BookOpen } from "lucide-react";
+import { ArrowLeft, ChevronRight, Calendar, Download, BookOpen, Save, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const AREAS = [
   { key: "linguagens", label: "Linguagens", emoji: "📝" },
@@ -42,11 +46,14 @@ interface ScheduleEntry {
 type Step = "name" | "objective" | "days" | "time" | "schedule" | "level" | "areas" | "contents" | "result";
 
 export default function StudyPlanner({ onBack }: { onBack: () => void }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>("name");
   const [data, setData] = useState<DiagnosticData>({ name: "", objective: "", daysPerWeek: 3, sessionTime: "40min", schedule: "Tarde", level: "Médio" });
   const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set());
   const [selectedContents, setSelectedContents] = useState<Record<string, Set<string>>>({});
   const [generatedSchedule, setGeneratedSchedule] = useState<ScheduleEntry[]>([]);
+  const [savingPlan, setSavingPlan] = useState(false);
 
   const toggleArea = (key: string) => {
     const s = new Set(selectedAreas);
@@ -118,6 +125,63 @@ export default function StudyPlanner({ onBack }: { onBack: () => void }) {
     a.download = `cronograma-${data.name.toLowerCase().replace(/\s/g, "-")}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Map day label -> dia_semana (0=Dom..6=Sáb)
+  const dayToNum: Record<string, number> = {
+    "Domingo": 0, "Segunda": 1, "Terça": 2, "Quarta": 3, "Quinta": 4, "Sexta": 5, "Sábado": 6,
+  };
+  const scheduleToHora: Record<string, string> = {
+    "Manhã": "08:00", "Tarde": "14:00", "Noite": "19:00", "Madrugada": "23:00",
+  };
+  const sessionToMin: Record<string, number> = { "20min": 20, "40min": 40, "1h": 60, "2h+": 120 };
+  const CORES_AREA: Record<string, string> = {
+    "Linguagens": "hsl(210 80% 55%)",
+    "Matemática": "hsl(15 85% 60%)",
+    "Ciências Humanas": "hsl(40 90% 55%)",
+    "Ciências da Natureza": "hsl(145 60% 45%)",
+    "Redação": "hsl(280 60% 55%)",
+    "Revisão": "hsl(165 55% 42%)",
+  };
+
+  const saveToWeekly = async () => {
+    if (!user) {
+      toast({ title: "Faça login para salvar no cronograma", variant: "destructive" });
+      return;
+    }
+    setSavingPlan(true);
+    const baseHora = scheduleToHora[data.schedule] || "14:00";
+    const baseHourNum = parseInt(baseHora.split(":")[0]);
+    const dur = sessionToMin[data.sessionTime] || 60;
+
+    // Clear existing rows for these slots before inserting new
+    const inserts = generatedSchedule.map((e, idx) => {
+      const dia = dayToNum[e.day] ?? 1;
+      // stagger if same day has multiple entries
+      const sameDayBefore = generatedSchedule.slice(0, idx).filter(p => p.day === e.day).length;
+      const hour = (baseHourNum + sameDayBefore) % 24;
+      const horario = `${hour.toString().padStart(2, "0")}:00`;
+      const cor = CORES_AREA[e.subject] || "hsl(165 55% 42%)";
+      return {
+        user_id: user.id,
+        dia_semana: dia,
+        horario,
+        materia: e.subject,
+        conteudo: e.content,
+        tipo_estudo: e.type.toLowerCase().includes("revis") ? "revisao" : e.type.toLowerCase().includes("quest") ? "exercicios" : "leitura",
+        duracao: dur,
+        cor,
+      };
+    });
+
+    const { error } = await supabase.from("cronograma").insert(inserts);
+    setSavingPlan(false);
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Cronograma salvo! ✓", description: "Veja na planilha semanal." });
+      setTimeout(() => navigate("/cronograma"), 800);
+    }
   };
 
   const renderStep = () => {
@@ -322,8 +386,12 @@ export default function StudyPlanner({ onBack }: { onBack: () => void }) {
               "Constância supera intensidade. Vai com calma, mas vai." 💪
             </p>
             <div className="flex flex-col gap-3">
-              <Button variant="hero" size="lg" onClick={downloadPDF} className="rounded-full gap-2">
-                <Download className="h-5 w-5" /> Baixar cronograma
+              <Button variant="hero" size="lg" onClick={saveToWeekly} disabled={savingPlan} className="rounded-full gap-2">
+                {savingPlan ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                {savingPlan ? "Salvando..." : "Salvar na planilha semanal"}
+              </Button>
+              <Button variant="calm" size="lg" onClick={downloadPDF} className="rounded-full gap-2">
+                <Download className="h-5 w-5" /> Baixar como texto
               </Button>
               <Button variant="ghost" onClick={onBack}>Voltar ao início</Button>
             </div>
