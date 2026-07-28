@@ -267,7 +267,7 @@ export default function CronogramaPage() {
                       return (
                         <td
                           key={key}
-                          className="p-1 border-l border-border/30 relative group"
+                          className="p-0.5 border-l border-border/30 relative group align-top"
                           onDragOver={e => e.preventDefault()}
                           onDrop={() => handleDrop(key)}
                         >
@@ -305,34 +305,31 @@ export default function CronogramaPage() {
                             <div
                               draggable
                               onDragStart={() => handleDragStart(key)}
-                              className="rounded-lg p-1.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity"
-                              style={{ background: cell.cor + "22", borderLeft: `3px solid ${cell.cor}` }}
+                              className="rounded-md px-1 py-0.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity leading-tight"
+                              style={{ background: cell.cor + "22", borderLeft: `2px solid ${cell.cor}` }}
                               onClick={() => {
                                 setForm({ materia: cell.materia, conteudo: cell.conteudo, tipo_estudo: cell.tipo_estudo, duracao: cell.duracao });
                                 setEditing(key);
                               }}
                             >
-                              <div className="flex items-center gap-1">
-                                <GripVertical className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 shrink-0" />
-                                <p className="font-semibold truncate text-[11px]" style={{ color: cell.cor }}>{cell.materia}</p>
-                              </div>
-                              <p className="text-muted-foreground truncate">{cell.conteudo}</p>
+                              <p className="font-semibold truncate text-[10px]" style={{ color: cell.cor }}>{cell.materia}</p>
+                              <p className="text-muted-foreground truncate text-[9px]">{cell.conteudo}</p>
                               <button
-                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={e => { e.stopPropagation(); deleteCell(key); }}
                               >
-                                <Trash2 className="h-3 w-3 text-destructive" />
+                                <Trash2 className="h-2.5 w-2.5 text-destructive" />
                               </button>
                             </div>
                           ) : (
                             <button
-                              className="w-full h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="w-full h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => {
                                 setForm({ materia: "", conteudo: "", tipo_estudo: "leitura", duracao: 60 });
                                 setEditing(key);
                               }}
                             >
-                              <Plus className="h-4 w-4 text-muted-foreground" />
+                              <Plus className="h-3 w-3 text-muted-foreground" />
                             </button>
                           )}
                         </td>
