@@ -7,8 +7,6 @@ import ProgressDashboard from "@/components/ProgressDashboard";
 import AnxietyMode from "@/components/AnxietyMode";
 import Pricing from "@/components/Pricing";
 import Footer from "@/components/Footer";
-import AntiProcrastination from "@/components/AntiProcrastination";
-import AntiProcrastinationButton from "@/components/AntiProcrastinationButton";
 import ModoMadrugada from "@/components/ModoMadrugada";
 import ModoVestibular from "@/components/ModoVestibular";
 import ModoRecuperacao from "@/components/ModoRecuperacao";
@@ -18,7 +16,7 @@ import AppNav from "@/components/AppNav";
 import { useStudyMode } from "@/contexts/StudyModeContext";
 import { useNavigate } from "react-router-dom";
 
-type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner" | "pomodoro" | "revisao" | "sprint";
+type ActiveView = "home" | "guided" | "madrugada" | "vestibular" | "recuperacao" | "planner" | "pomodoro" | "revisao";
 
 const Index = () => {
   const [view, setView] = useState<ActiveView>("home");
@@ -39,19 +37,16 @@ const Index = () => {
     <div className="min-h-screen bg-background transition-colors duration-500">
       <AppNav />
       <GuidedSession onBack={goHome} />
-      <AntiProcrastination />
     </div>
   );
   if (view === "madrugada") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <ModoMadrugada onBack={goHome} />
-      <AntiProcrastination />
     </div>
   );
   if (view === "vestibular") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <ModoVestibular onBack={goHome} />
-      <AntiProcrastination />
     </div>
   );
   if (view === "recuperacao") return (
@@ -65,7 +60,7 @@ const Index = () => {
       <StudyPlanner onBack={goHome} />
     </div>
   );
-  if (view === "pomodoro" || view === "revisao" || view === "sprint") return (
+  if (view === "pomodoro" || view === "revisao") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
       <AppNav />
       <StudyModeSession mode={view} onBack={goHome} />
@@ -80,8 +75,6 @@ const Index = () => {
         onModeSelect={(mode) => {
           if (mode === "pomodoro") setView("pomodoro");
           else if (mode === "revisao") setView("revisao");
-          else if (mode === "sprint") setView("sprint");
-          else if (mode === "revisao7") activateMode("guided");
           else if (mode === "flashcard") navigate("/flashcards");
           else if (mode === "recuperacao") activateMode("recuperacao");
         }}
@@ -98,8 +91,6 @@ const Index = () => {
       <AnxietyMode />
       <Pricing />
       <Footer />
-      <AntiProcrastination />
-      <AntiProcrastinationButton onStartFocus={() => activateMode("guided")} />
     </div>
   );
 };
