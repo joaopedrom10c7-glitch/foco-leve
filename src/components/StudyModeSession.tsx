@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Pause, Coffee, Check, X, Loader2, Timer, RefreshCw, Zap, ChevronRight } from "lucide-react";
-import { fetchQuestionsByDiscipline, DISCIPLINE_KEYS, DISCIPLINE_MAP, type EnemQuestion } from "@/services/enemApi";
+import { ArrowLeft, Play, Pause, Loader2, Timer, RefreshCw, ChevronRight } from "lucide-react";
+import { fetchQuestionsByDiscipline, DISCIPLINE_MAP, type EnemQuestion } from "@/services/enemApi";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Mode = "pomodoro" | "revisao" | "sprint";
+type Mode = "pomodoro" | "revisao";
 
 interface Props {
   mode: Mode;
@@ -26,19 +26,12 @@ const MODE_CONFIG = {
     icon: RefreshCw,
     color: "text-accent",
   },
-  sprint: {
-    title: "ENEM Sprint ⚡",
-    desc: "10 questões · 3 min cada",
-    icon: Zap,
-    color: "text-warning",
-  },
 };
 
 export default function StudyModeSession({ mode, onBack }: Props) {
   const cfg = MODE_CONFIG[mode];
-  if (mode === "pomodoro") return <PomodoroMode onBack={onBack} cfg={cfg} />;
-  if (mode === "sprint") return <SprintMode onBack={onBack} cfg={cfg} />;
-  return <RevisaoMode onBack={onBack} cfg={cfg} />;
+  if (mode === "pomodoro") return <PomodoroMode onBack={onBack} cfg={cfg as typeof MODE_CONFIG.pomodoro} />;
+  return <RevisaoMode onBack={onBack} cfg={cfg as typeof MODE_CONFIG.revisao} />;
 }
 
 /* ───────── POMODORO ───────── */
@@ -50,32 +43,35 @@ function PomodoroMode({ onBack, cfg }: { onBack: () => void; cfg: typeof MODE_CO
   const [seconds, setSeconds] = useState(FOCUS);
   const [running, setRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
-  const intervalRef = useRef<number | null>(null);
 
+  // Tick — only depends on `running`, so the countdown never gets stuck
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    } else if (running && seconds === 0) {
-      // Phase done
-      if (phase === "focus") {
-        setCycles(c => c + 1);
-        if (user) {
-          supabase.from("study_sessions").insert({
-            user_id: user.id, materia: "Pomodoro", area: "Foco", modo: "pomodoro", duracao_min: 25,
-          });
-          supabase.from("focus_sessions").insert({
-            user_id: user.id, materia: "Pomodoro", duracao: 25, completado: true,
-          });
-        }
-        setPhase("break");
-        setSeconds(BREAK);
-      } else {
-        setPhase("focus");
-        setSeconds(FOCUS);
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  // Phase transition when the countdown reaches zero
+  useEffect(() => {
+    if (!running || seconds > 0) return;
+    if (phase === "focus") {
+      setCycles(c => c + 1);
+      if (user) {
+        supabase.from("study_sessions").insert({
+          user_id: user.id, materia: "Pomodoro", area: "Foco", modo: "pomodoro", duracao_min: 25,
+        });
+        supabase.from("focus_sessions").insert({
+          user_id: user.id, materia: "Pomodoro", duracao: 25, completado: true,
+        });
       }
+      setPhase("break");
+      setSeconds(BREAK);
+    } else {
+      setPhase("focus");
+      setSeconds(FOCUS);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, phase, user]);
+  }, [running, seconds, phase, user, FOCUS, BREAK]);
+
 
   const total = phase === "focus" ? FOCUS : BREAK;
   const progress = ((total - seconds) / total) * 100;
@@ -126,155 +122,6 @@ function PomodoroMode({ onBack, cfg }: { onBack: () => void; cfg: typeof MODE_CO
   );
 }
 
-/* ───────── SPRINT ───────── */
-function SprintMode({ onBack, cfg }: { onBack: () => void; cfg: typeof MODE_CONFIG.sprint }) {
-  const QUESTION_TIME = 3 * 60;
-  const { user } = useAuth();
-  const [phase, setPhase] = useState<"loading" | "playing" | "done">("loading");
-  const [questions, setQuestions] = useState<EnemQuestion[]>([]);
-  const [currentQ, setCurrentQ] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [seconds, setSeconds] = useState(QUESTION_TIME);
-  const intervalRef = useRef<number | null>(null);
-
-  // Load 10 mixed questions
-  useEffect(() => {
-    (async () => {
-      try {
-        const year = 2023;
-        const promises = DISCIPLINE_KEYS.map(d => fetchQuestionsByDiscipline(year, d, 3).catch(() => []));
-        const results = await Promise.all(promises);
-        const all = results.flat();
-        // shuffle and take 10
-        for (let i = all.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [all[i], all[j]] = [all[j], all[i]];
-        }
-        const ten = all.slice(0, 10);
-        if (ten.length === 0) {
-          alert("Erro ao carregar questões. Verifique sua conexão.");
-          onBack();
-          return;
-        }
-        setQuestions(ten);
-        setPhase("playing");
-        setSeconds(QUESTION_TIME);
-      } catch {
-        alert("Erro ao carregar questões.");
-        onBack();
-      }
-    })();
-  }, [onBack]);
-
-  const nextQuestion = useCallback(() => {
-    if (currentQ >= questions.length - 1) {
-      setPhase("done");
-      // record session
-      if (user && questions.length > 0) {
-        const correct = questions.filter((q, i) => answers[i] === q.correctAlternative).length;
-        supabase.from("study_sessions").insert({
-          user_id: user.id, materia: "Sprint", area: "Misto", modo: "sprint", duracao_min: 30,
-        });
-        questions.forEach((q, i) => {
-          supabase.from("user_answers").insert({
-            user_id: user.id,
-            materia: DISCIPLINE_MAP[q.discipline] || q.discipline,
-            assunto: "sprint",
-            correto: answers[i] === q.correctAlternative,
-            tempo_resposta: 0,
-          });
-        });
-      }
-      return;
-    }
-    setCurrentQ(c => c + 1);
-    setSeconds(QUESTION_TIME);
-  }, [currentQ, questions, answers, user]);
-
-  useEffect(() => {
-    if (phase !== "playing") return;
-    if (seconds <= 0) { nextQuestion(); return; }
-    intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [phase, seconds, nextQuestion]);
-
-  if (phase === "loading") {
-    return (
-      <section className="min-h-[100dvh] flex flex-col items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground">Preparando 10 questões mistas do ENEM...</p>
-      </section>
-    );
-  }
-
-  if (phase === "done") {
-    const correct = questions.filter((q, i) => answers[i] === q.correctAlternative).length;
-    return (
-      <section className="min-h-[100dvh] flex flex-col bg-background">
-        <div className="flex-1 container flex flex-col items-center justify-center px-6 pb-12 text-center">
-          <Zap className="h-14 w-14 text-warning mb-4" />
-          <h2 className="font-display font-bold text-3xl mb-2">Sprint completo!</h2>
-          <p className="text-muted-foreground mb-6">10 questões em até 30 min</p>
-          <div className="bg-primary/10 rounded-2xl p-6 mb-6">
-            <p className="font-display font-bold text-5xl text-primary">{correct}/10</p>
-            <p className="text-sm text-muted-foreground">acertos</p>
-          </div>
-          <Button variant="hero" size="lg" onClick={onBack} className="rounded-full">Voltar</Button>
-        </div>
-      </section>
-    );
-  }
-
-  const q = questions[currentQ];
-  const min = Math.floor(seconds / 60).toString().padStart(2, "0");
-  const sec = (seconds % 60).toString().padStart(2, "0");
-
-  return (
-    <section className="min-h-[100dvh] flex flex-col bg-background">
-      <div className="container py-3 flex items-center justify-between border-b border-border">
-        <span className="text-xs text-muted-foreground font-display">Questão {currentQ + 1}/10 · {DISCIPLINE_MAP[q.discipline] || q.discipline}</span>
-        <div className="flex items-center gap-2">
-          <Timer className="h-4 w-4 text-warning" />
-          <span className={`font-display font-bold text-sm ${seconds < 30 ? "text-destructive animate-pulse" : ""}`}>{min}:{sec}</span>
-        </div>
-      </div>
-      <div className="h-1 bg-muted">
-        <div className="h-full bg-warning transition-all" style={{ width: `${((QUESTION_TIME - seconds) / QUESTION_TIME) * 100}%` }} />
-      </div>
-
-      <div className="flex-1 container px-4 py-6 overflow-y-auto max-w-2xl">
-        {q.context && (
-          <div className="bg-muted/50 rounded-xl p-4 mb-4 text-sm leading-relaxed max-h-40 overflow-y-auto">
-            {q.context.replace(/!\[.*?\]\(.*?\)/g, "[imagem]").substring(0, 600)}
-          </div>
-        )}
-        <p className="font-display font-bold text-base mb-4">{q.alternativesIntroduction}</p>
-        <div className="flex flex-col gap-2">
-          {q.alternatives.map(alt => (
-            <button
-              key={alt.letter}
-              onClick={() => setAnswers({ ...answers, [currentQ]: alt.letter })}
-              className={`flex items-start gap-3 rounded-xl p-3 text-left transition-all border-2 ${
-                answers[currentQ] === alt.letter ? "border-primary bg-primary/10" : "border-transparent bg-card hover:bg-muted/50"
-              }`}
-            >
-              <span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
-                answers[currentQ] === alt.letter ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}>{alt.letter}</span>
-              <span className="text-sm">{alt.text}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="container py-4 border-t border-border">
-        <Button variant="hero" className="w-full rounded-full gap-2" onClick={nextQuestion}>
-          {currentQ === questions.length - 1 ? "Finalizar" : "Próxima"} <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-    </section>
-  );
-}
 
 /* ───────── REVISÃO ATIVA ───────── */
 function RevisaoMode({ onBack, cfg }: { onBack: () => void; cfg: typeof MODE_CONFIG.revisao }) {

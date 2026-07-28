@@ -246,27 +246,28 @@ export default function CronogramaPage() {
 
           {/* Grid */}
           <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-xs">
+            <table className="w-full text-[10px] table-fixed">
               <thead>
                 <tr className="bg-muted/50">
-                  <th className="p-2 text-left font-semibold min-w-[60px] sticky left-0 bg-muted/50 z-10">Hora</th>
+                  <th className="p-1 text-left font-semibold w-[46px] sticky left-0 bg-muted/50 z-10">Hora</th>
                   {DIAS.map(d => (
-                    <th key={d} className="p-2 text-center font-semibold min-w-[120px]">{d}</th>
+                    <th key={d} className="p-1 text-center font-semibold min-w-[74px]">{d}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {HORARIOS.map(hora => (
                   <tr key={hora} className="border-t border-border/50">
-                    <td className="p-2 font-mono text-muted-foreground sticky left-0 bg-background z-10">{hora}</td>
+                    <td className="p-1 font-mono text-[10px] text-muted-foreground sticky left-0 bg-background z-10">{hora}</td>
                     {DIAS.map((_, dia) => {
+
                       const key = cellKey(dia, hora);
                       const cell = grid[key];
                       const isEditing = editing === key;
                       return (
                         <td
                           key={key}
-                          className="p-1 border-l border-border/30 relative group"
+                          className="p-0.5 border-l border-border/30 relative group align-top"
                           onDragOver={e => e.preventDefault()}
                           onDrop={() => handleDrop(key)}
                         >
@@ -304,34 +305,31 @@ export default function CronogramaPage() {
                             <div
                               draggable
                               onDragStart={() => handleDragStart(key)}
-                              className="rounded-lg p-1.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity"
-                              style={{ background: cell.cor + "22", borderLeft: `3px solid ${cell.cor}` }}
+                              className="rounded-md px-1 py-0.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity leading-tight"
+                              style={{ background: cell.cor + "22", borderLeft: `2px solid ${cell.cor}` }}
                               onClick={() => {
                                 setForm({ materia: cell.materia, conteudo: cell.conteudo, tipo_estudo: cell.tipo_estudo, duracao: cell.duracao });
                                 setEditing(key);
                               }}
                             >
-                              <div className="flex items-center gap-1">
-                                <GripVertical className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 shrink-0" />
-                                <p className="font-semibold truncate text-[11px]" style={{ color: cell.cor }}>{cell.materia}</p>
-                              </div>
-                              <p className="text-muted-foreground truncate">{cell.conteudo}</p>
+                              <p className="font-semibold truncate text-[10px]" style={{ color: cell.cor }}>{cell.materia}</p>
+                              <p className="text-muted-foreground truncate text-[9px]">{cell.conteudo}</p>
                               <button
-                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={e => { e.stopPropagation(); deleteCell(key); }}
                               >
-                                <Trash2 className="h-3 w-3 text-destructive" />
+                                <Trash2 className="h-2.5 w-2.5 text-destructive" />
                               </button>
                             </div>
                           ) : (
                             <button
-                              className="w-full h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="w-full h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => {
                                 setForm({ materia: "", conteudo: "", tipo_estudo: "leitura", duracao: 60 });
                                 setEditing(key);
                               }}
                             >
-                              <Plus className="h-4 w-4 text-muted-foreground" />
+                              <Plus className="h-3 w-3 text-muted-foreground" />
                             </button>
                           )}
                         </td>

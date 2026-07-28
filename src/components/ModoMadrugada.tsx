@@ -31,23 +31,25 @@ export default function ModoMadrugada({ onBack }: { onBack: () => void }) {
   const breakSeconds = 3 * 60;
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (seconds === 0 && phase === "studying") {
-        setSessionCount(c => c + 1);
-        setPhase("done");
-      }
-      if (seconds === 0 && phase === "break") {
-        setSeconds(totalSeconds);
-        setPhase("studying");
-        setRunning(true);
-        setPhraseIndex(i => (i + 1) % nightPhrases.length);
-      }
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  useEffect(() => {
+    if (seconds > 0) return;
+    if (phase === "studying") {
+      setSessionCount(c => c + 1);
+      setRunning(false);
+      setPhase("done");
+    } else if (phase === "break") {
+      setSeconds(totalSeconds);
+      setPhase("studying");
+      setRunning(true);
+      setPhraseIndex(i => (i + 1) % nightPhrases.length);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, phase]);
+  }, [seconds, phase, totalSeconds]);
+
 
   useEffect(() => {
     if (audioRef.current) {

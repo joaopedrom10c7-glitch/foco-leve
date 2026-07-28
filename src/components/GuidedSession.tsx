@@ -52,16 +52,17 @@ export default function GuidedSession({ onBack }: { onBack: () => void }) {
   const totalSeconds = energy !== null ? energyLevels[energy].minutes * 60 : 0;
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds((s) => s - 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (seconds === 0 && step === "studying" && !sessionSaved) {
-        completeSession();
-      }
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  useEffect(() => {
+    if (seconds === 0 && step === "studying" && !sessionSaved) {
+      completeSession();
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, step]);
+  }, [seconds, step, sessionSaved]);
+
 
   useEffect(() => {
     if (step !== "studying") return;

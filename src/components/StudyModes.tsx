@@ -1,12 +1,10 @@
-import { Timer, Brain, Layers, Zap, RefreshCw, Target } from "lucide-react";
+import { Timer, Brain, Layers, Target } from "lucide-react";
 
 const modes = [
   { name: "Modo Pomodoro", key: "pomodoro", icon: Timer, desc: "25 min foco + 5 pausa", color: "bg-primary/10 text-primary border-primary/20" },
   { name: "Modo Revisão Ativa", key: "revisao", icon: Brain, desc: "Teste sua memória", color: "bg-accent/10 text-accent border-accent/20" },
   { name: "Modo Flashcard", key: "flashcard", icon: Layers, desc: "Cartões rápidos", color: "bg-info/10 text-info border-info/20" },
-  { name: "Modo ENEM Sprint", key: "sprint", icon: Zap, desc: "Simulação cronometrada", color: "bg-warning/10 text-warning border-warning/20" },
-  { name: "Modo Revisão 7 dias", key: "revisao7", icon: RefreshCw, desc: "Espaçada automática", color: "bg-success/10 text-success border-success/20" },
-  { name: "Modo Recuperação", key: "recuperacao", icon: Target, desc: "Sessões leves", color: "bg-primary/10 text-primary border-primary/20" },
+  { name: "Modo Recuperação", key: "recuperacao", icon: Target, desc: "Sessões leves", color: "bg-success/10 text-success border-success/20" },
 ];
 
 interface Props {
