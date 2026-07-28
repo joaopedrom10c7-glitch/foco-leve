@@ -1,9 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Calendar, BarChart3, Layers, User, LogOut, Brain, TrendingUp, Trophy, PenTool, Settings, Crown } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { BookOpen, Calendar, BarChart3, Layers, User, LogOut, Brain, TrendingUp, Trophy, PenTool, Settings, Crown, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
+
 
 const links = [
   { to: "/", label: "Início", icon: BookOpen },
@@ -28,20 +29,35 @@ const mobileLinks = [
 
 export default function AppNav() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const isHome = pathname === "/";
 
   return (
     <>
       {/* Top nav */}
       <nav className="sticky top-0 z-40 bg-card/80 backdrop-blur-lg border-b border-border">
         <div className="container flex items-center justify-between h-14">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-display font-bold text-lg">FOCO LEVE</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            {!isHome && (
+              <button
+                onClick={() => navigate(-1)}
+                aria-label="Voltar"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Voltar</span>
+              </button>
+            )}
+            <Link to="/" className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                <BookOpen className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="font-display font-bold text-lg">FOCO LEVE</span>
+            </Link>
+          </div>
+
           <div className="hidden md:flex items-center gap-1">
             {links.map(l => (
               <Link

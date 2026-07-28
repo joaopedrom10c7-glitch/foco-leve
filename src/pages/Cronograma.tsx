@@ -246,20 +246,21 @@ export default function CronogramaPage() {
 
           {/* Grid */}
           <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-xs">
+            <table className="w-full text-[10px] table-fixed">
               <thead>
                 <tr className="bg-muted/50">
-                  <th className="p-2 text-left font-semibold min-w-[60px] sticky left-0 bg-muted/50 z-10">Hora</th>
+                  <th className="p-1 text-left font-semibold w-[46px] sticky left-0 bg-muted/50 z-10">Hora</th>
                   {DIAS.map(d => (
-                    <th key={d} className="p-2 text-center font-semibold min-w-[120px]">{d}</th>
+                    <th key={d} className="p-1 text-center font-semibold min-w-[74px]">{d}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {HORARIOS.map(hora => (
                   <tr key={hora} className="border-t border-border/50">
-                    <td className="p-2 font-mono text-muted-foreground sticky left-0 bg-background z-10">{hora}</td>
+                    <td className="p-1 font-mono text-[10px] text-muted-foreground sticky left-0 bg-background z-10">{hora}</td>
                     {DIAS.map((_, dia) => {
+
                       const key = cellKey(dia, hora);
                       const cell = grid[key];
                       const isEditing = editing === key;
