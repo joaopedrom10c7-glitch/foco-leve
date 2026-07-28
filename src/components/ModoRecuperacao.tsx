@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, HeartPulse, Play, Pause, Sparkles, Heart } from "lucide-react";
 import mascotImage from "@/assets/mascot-foco.png";
@@ -20,6 +20,33 @@ const microTasks = [
   "📐 Resolva 1 conta simples de matemática",
   "🌍 Pense em 1 fato de geografia que você sabe",
   "📜 Lembre 1 evento histórico e por que ele importa",
+  "🧪 Escreva o nome de 3 elementos químicos e seus símbolos",
+  "🧬 Explique em 1 frase o que é uma célula",
+  "⚡ Diga em voz alta a fórmula da velocidade média",
+  "📊 Faça uma regra de três com números fáceis",
+  "✍️ Escreva uma frase de introdução para uma redação",
+  "🗣 Explique um conceito difícil como se fosse para uma criança",
+  "📚 Liste 3 obras literárias que você conhece",
+  "🌱 Cite 2 impactos ambientais do desmatamento",
+  "🏛 Lembre 3 direitos garantidos pela Constituição de 1988",
+  "🔤 Revise a diferença entre 'mas' e 'mais'",
+  "🧮 Resolva 1 equação do 1º grau simples",
+  "🌡 Converta 1 temperatura de Celsius para Fahrenheit",
+  "🗺 Aponte no mapa mental as 5 regiões do Brasil",
+  "💬 Escreva 1 argumento a favor de um tema atual",
+  "🧠 Faça 1 flashcard novo de qualquer matéria",
+  "📈 Interprete um gráfico simples que você lembrar",
+  "🔬 Explique em 1 frase a diferença entre mitose e meiose",
+  "🕰 Cite 2 causas da Primeira Guerra Mundial",
+  "🎨 Lembre 1 movimento artístico e sua característica",
+  "📖 Leia 1 questão do ENEM sem responder, só entendendo",
+  "🧾 Revise a fórmula da área do triângulo",
+  "🌊 Explique em 1 frase o ciclo da água",
+  "💰 Pense em 1 conceito de economia que ouviu no noticiário",
+  "🗞 Lembre 1 notícia recente que pode virar tema de redação",
+  "🔋 Diferencie energia renovável de não renovável em 1 frase",
+  "🧭 Revise a diferença entre latitude e longitude",
+  "📌 Escolha 1 assunto que te dá medo e escreva por quê",
 ];
 
 const completionRewards = [
@@ -36,20 +63,19 @@ export default function ModoRecuperacao({ onBack }: { onBack: () => void }) {
   const [running, setRunning] = useState(false);
   const [task, setTask] = useState("");
   const [messageIndex] = useState(Math.floor(Math.random() * gentleMessages.length));
-  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (seconds === 0 && phase === "studying" && running) {
-        setPhase("done");
-        setRunning(false);
-      }
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  useEffect(() => {
+    if (seconds === 0 && phase === "studying" && running) {
+      setRunning(false);
+      setPhase("done");
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, phase]);
+  }, [seconds, phase, running]);
 
   const startSession = (mins: number) => {
     setDuration(mins);
@@ -101,7 +127,10 @@ export default function ModoRecuperacao({ onBack }: { onBack: () => void }) {
   if (phase === "studying") {
     return (
       <section className="min-h-[100dvh] flex flex-col bg-background">
-        <div className="container py-4">
+        <div className="container py-4 flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </Button>
           <span className="text-xs text-success">💚 Recuperação • {duration} min</span>
         </div>
         <div className="flex-1 container flex flex-col items-center justify-center px-6 pb-12">
