@@ -21,13 +21,15 @@ export default function FocusTimer() {
   }, [selectedMode]);
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds((s) => s - 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds]);
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  useEffect(() => {
+    if (seconds === 0) setRunning(false);
+  }, [seconds]);
+
 
   const total = modes[selectedMode].minutes * 60;
   const progress = ((total - seconds) / total) * 100;

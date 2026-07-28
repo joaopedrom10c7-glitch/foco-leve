@@ -21,14 +21,18 @@ export default function ModoVestibular({ onBack }: { onBack: () => void }) {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (seconds === 0 && phase === "exam") finishExam();
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  useEffect(() => {
+    if (seconds === 0 && phase === "exam") {
+      setRunning(false);
+      setPhase("results");
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, phase]);
+  }, [seconds, phase]);
+
 
   const loadQuestions = async () => {
     setPhase("loading");
