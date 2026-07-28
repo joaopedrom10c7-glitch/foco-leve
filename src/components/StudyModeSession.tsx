@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Pause, Coffee, Check, X, Loader2, Timer, RefreshCw, Zap, ChevronRight } from "lucide-react";
-import { fetchQuestionsByDiscipline, DISCIPLINE_KEYS, DISCIPLINE_MAP, type EnemQuestion } from "@/services/enemApi";
+import { ArrowLeft, Play, Pause, Loader2, Timer, RefreshCw, ChevronRight } from "lucide-react";
+import { fetchQuestionsByDiscipline, DISCIPLINE_MAP, type EnemQuestion } from "@/services/enemApi";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Mode = "pomodoro" | "revisao" | "sprint";
+type Mode = "pomodoro" | "revisao";
 
 interface Props {
   mode: Mode;
@@ -26,19 +26,12 @@ const MODE_CONFIG = {
     icon: RefreshCw,
     color: "text-accent",
   },
-  sprint: {
-    title: "ENEM Sprint ⚡",
-    desc: "10 questões · 3 min cada",
-    icon: Zap,
-    color: "text-warning",
-  },
 };
 
 export default function StudyModeSession({ mode, onBack }: Props) {
   const cfg = MODE_CONFIG[mode];
-  if (mode === "pomodoro") return <PomodoroMode onBack={onBack} cfg={cfg} />;
-  if (mode === "sprint") return <SprintMode onBack={onBack} cfg={cfg} />;
-  return <RevisaoMode onBack={onBack} cfg={cfg} />;
+  if (mode === "pomodoro") return <PomodoroMode onBack={onBack} cfg={cfg as typeof MODE_CONFIG.pomodoro} />;
+  return <RevisaoMode onBack={onBack} cfg={cfg as typeof MODE_CONFIG.revisao} />;
 }
 
 /* ───────── POMODORO ───────── */
@@ -50,32 +43,35 @@ function PomodoroMode({ onBack, cfg }: { onBack: () => void; cfg: typeof MODE_CO
   const [seconds, setSeconds] = useState(FOCUS);
   const [running, setRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
-  const intervalRef = useRef<number | null>(null);
 
+  // Tick — only depends on `running`, so the countdown never gets stuck
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = window.setInterval(() => setSeconds(s => s - 1), 1000);
-    } else if (running && seconds === 0) {
-      // Phase done
-      if (phase === "focus") {
-        setCycles(c => c + 1);
-        if (user) {
-          supabase.from("study_sessions").insert({
-            user_id: user.id, materia: "Pomodoro", area: "Foco", modo: "pomodoro", duracao_min: 25,
-          });
-          supabase.from("focus_sessions").insert({
-            user_id: user.id, materia: "Pomodoro", duracao: 25, completado: true,
-          });
-        }
-        setPhase("break");
-        setSeconds(BREAK);
-      } else {
-        setPhase("focus");
-        setSeconds(FOCUS);
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => window.clearInterval(id);
+  }, [running]);
+
+  // Phase transition when the countdown reaches zero
+  useEffect(() => {
+    if (!running || seconds > 0) return;
+    if (phase === "focus") {
+      setCycles(c => c + 1);
+      if (user) {
+        supabase.from("study_sessions").insert({
+          user_id: user.id, materia: "Pomodoro", area: "Foco", modo: "pomodoro", duracao_min: 25,
+        });
+        supabase.from("focus_sessions").insert({
+          user_id: user.id, materia: "Pomodoro", duracao: 25, completado: true,
+        });
       }
+      setPhase("break");
+      setSeconds(BREAK);
+    } else {
+      setPhase("focus");
+      setSeconds(FOCUS);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, seconds, phase, user]);
+  }, [running, seconds, phase, user, FOCUS, BREAK]);
+
 
   const total = phase === "focus" ? FOCUS : BREAK;
   const progress = ((total - seconds) / total) * 100;
