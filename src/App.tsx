@@ -23,7 +23,6 @@ import RedacaoPage from "./pages/Redacao";
 import ConfiguracoesPage from "./pages/Configuracoes";
 import RankingPage from "./pages/Ranking";
 import Onboarding from "./components/Onboarding";
-import AICoach from "./components/AICoach";
 import InstallPrompt from "./components/InstallPrompt";
 import { usePWA } from "./hooks/usePWA";
 
@@ -85,7 +84,7 @@ function AppRoutes() {
         <Route path="/planos" element={<PlanosPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <AICoach />
+      
       <InstallPrompt />
     </>
   );
