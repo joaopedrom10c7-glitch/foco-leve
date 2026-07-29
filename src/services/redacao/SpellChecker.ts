@@ -7,6 +7,14 @@ import {
 import type { Issue } from "@/services/redacao/types";
 import { normalize, tokenize } from "@/utils/text";
 
+const VERB_SUFFIXES = [
+  "ava","avam","avas","ávamos","ia","iam","ias","íamos","ei","aste","ou","amos","aram",
+  "i","este","eu","emos","eram","iu","iram","o","as","a","am","e","es","em","ando","endo",
+  "indo","ado","ada","ados","adas","ido","ida","idos","idas","aria","eria","iria","ariam",
+  "erão","arão","irão","ará","erá","irá","asse","esse","isse","assem","essem","issem",
+  "ar","er","ir","armos","ermos","irmos","aremos","eremos","iremos",
+];
+
 const ROMAN = /^[ivxlcdm]+$/;
 
 function isKnown(word: string): boolean {
@@ -37,6 +45,13 @@ function isKnown(word: string): boolean {
   if (/[ao]s?$/.test(lower)) {
     const masc = lower.replace(/as?$/, "o").replace(/os$/, "o");
     if (has(masc)) return true;
+  }
+  // Conjugações verbais regulares
+  for (const suf of VERB_SUFFIXES) {
+    if (lower.length > suf.length + 2 && lower.endsWith(suf)) {
+      const r = lower.slice(0, -suf.length);
+      if (has(r + "ar") || has(r + "er") || has(r + "ir") || has(r + "-se")) return true;
+    }
   }
   return false;
 }
