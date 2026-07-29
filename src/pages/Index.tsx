@@ -35,7 +35,6 @@ const Index = () => {
 
   if (view === "guided") return (
     <div className="min-h-screen bg-background transition-colors duration-500">
-      <AppNav />
       <GuidedSession onBack={goHome} />
     </div>
   );
