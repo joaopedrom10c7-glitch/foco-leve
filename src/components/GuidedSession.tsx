@@ -137,8 +137,8 @@ export default function GuidedSession({ onBack }: { onBack: () => void }) {
   const min = Math.floor(seconds / 60).toString().padStart(2, "0");
   const sec = (seconds % 60).toString().padStart(2, "0");
 
-  const startStudying = () => {
-    setSeconds(totalSeconds);
+  const startStudying = (energyIndex: number) => {
+    setSeconds(energyLevels[energyIndex].minutes * 60);
     setRunning(true);
     setStep("studying");
     setPsychMsg("");
@@ -207,7 +207,7 @@ export default function GuidedSession({ onBack }: { onBack: () => void }) {
                 key={e.label}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => { setEnergy(i); startStudying(); }}
+                onClick={() => { setEnergy(i); startStudying(i); }}
                 className={`rounded-2xl border-2 p-6 text-center transition-all ${e.color}`}
               >
                 <span className="text-4xl block mb-2">{e.emoji}</span>
