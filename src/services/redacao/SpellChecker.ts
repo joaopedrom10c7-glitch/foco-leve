@@ -13,13 +13,34 @@ function isKnown(word: string): boolean {
   const dict = getDictionary();
   if (!dict) return true;
   const lower = word.toLowerCase();
-  if (dict.words.has(lower)) return true;
+  const has = (w: string) => dict.words.has(w) || COMMON_WORDS.has(w);
+  if (has(lower)) return true;
   // Palavra com hífen: valida cada parte
   if (lower.includes("-")) {
-    return lower.split("-").every((p) => p.length < 2 || dict.words.has(p));
+    return lower.split("-").every((p) => p.length < 2 || has(p));
+  }
+  // Derivações regulares (advérbios, plurais, particípios/adjetivos)
+  const stem = (s: string) => lower.slice(0, -s.length);
+  if (lower.endsWith("mente")) {
+    const r = stem("mente");
+    if (has(r) || has(r + "o") || has(r.replace(/a$/, "o"))) return true;
+  }
+  if (lower.endsWith("s")) {
+    const r = stem("s");
+    if (has(r) || has(r.replace(/e$/, "")) || has(r.replace(/õe$/, "ão"))) return true;
+    if (lower.endsWith("is") && has(lower.slice(0, -2) + "l")) return true;
+  }
+  if (lower.endsWith("ante") || lower.endsWith("ente")) {
+    const r = stem("nte");
+    if (has(r + "r") || has(r.slice(0, -1) + "ar") || has(r.slice(0, -1) + "er")) return true;
+  }
+  if (/[ao]s?$/.test(lower)) {
+    const masc = lower.replace(/as?$/, "o").replace(/os$/, "o");
+    if (has(masc)) return true;
   }
   return false;
 }
+
 
 /** Gera sugestões ordenadas por proximidade + frequência. */
 export function suggest(word: string, limit = 5): string[] {
