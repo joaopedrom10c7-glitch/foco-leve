@@ -137,8 +137,8 @@ export default function GuidedSession({ onBack }: { onBack: () => void }) {
   const min = Math.floor(seconds / 60).toString().padStart(2, "0");
   const sec = (seconds % 60).toString().padStart(2, "0");
 
-  const startStudying = () => {
-    setSeconds(totalSeconds);
+  const startStudying = (energyIndex: number) => {
+    setSeconds(energyLevels[energyIndex].minutes * 60);
     setRunning(true);
     setStep("studying");
     setPsychMsg("");
